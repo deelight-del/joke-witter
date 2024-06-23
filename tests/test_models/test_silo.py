@@ -11,27 +11,43 @@ class TestSilo(unittest.TestCase):
 
     ID = 'arandomid'
 
+    def setUp(self) -> None:
+        Silo.create_silo(self.ID)
+
+    def tearDown(self) -> None:
+        Silo.destroy_silo(self.ID)
+
     def test_redis_initialized(self):
         """Test to see if the connection to redis was successful."""
         self.assertTrue(REDIS.connected())
 
     def test_new_silo_created(self):
         """Test to see if a new silo was successfully created."""
-        Silo.create_silo(self.ID)
-        item = REDIS.get(self.ID)
+
+        item = REDIS.get(self.ID, 'jokes')
         _item = Silo.get_jokes(self.ID, 5)
 
-        self.assertTrue(len(_item) != 5)  # FIX: This should be changed to ==
+        self.assertTrue(len(_item) != 5)  # FIX: This should be changed to == once db is implemented
         self.assertLessEqual(len(_item), 5)
-        self.assertEqual(
-            len(item[0].get('jokes')), len(_item))
+        self.assertListEqual(item, _item)
 
-    def test_silo_destroyed(self):
-        """Test is an existing silo is destroyed"""
-        Silo.destroy_silo(self.ID)
+    def test_joke_id_included(self):
+        """Test including a new id exists"""
+        Silo.include_joke(self.ID, '0')
+
+        self.assertTrue(REDIS.exist(self.ID, 'includes', '0'))
+        self.assertFalse(REDIS.exist(self.ID, 'exclude', '0'))
+
+    def test_joke_id_excluded(self):
+        """Test excluding a new id exists"""
+        Silo.exclude_joke(self.ID, '0')
+
+        self.assertTrue(REDIS.exist(self.ID, 'excludes', '0'))
+        self.assertFalse(REDIS.exist(self.ID, 'includes', '0'))
 
     def test_exception_if_id_destroyed(self):
         """Test if geting item after destruction id fails"""
+        Silo.destroy_silo(self.ID)
         with self.assertRaises(KeyError):
             Silo.get_jokes(self.ID)
 

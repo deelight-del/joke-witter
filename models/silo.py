@@ -28,7 +28,8 @@ class Silo:
         """
         # TODO: Include jokes from user's permenent includes to populate silo
         cls.__silo.set(
-            session_id, {'jokes': [], 'includes': [], 'excludes': []})
+            session_id, {'jokes': ['this is a joke'],
+                         'includes': {}, 'excludes': {}})
 
     @classmethod
     def destroy_silo(cls, session_id: str) -> None:
@@ -47,6 +48,9 @@ class Silo:
                 session_id: ID generated for the session
                 joke_id:    ID of the joke to include
         """
+        if cls.__silo.exist(session_id, 'excludes', joke_id):
+            cls.__silo.remove(session_id, 'excludes', joke_id)
+        cls.__silo.insert(session_id, 'includes', joke_id)
 
     @classmethod
     def exclude_joke(cls, session_id: str, joke_id: str) -> None:
@@ -56,6 +60,9 @@ class Silo:
                 session_id: ID generated for the session
                 joke_id:    ID of the joke to exclude
         """
+        if cls.__silo.exist(session_id, 'includes', joke_id):
+            cls.__silo.remove(session_id, 'includes', joke_id)
+        cls.__silo.insert(session_id, 'excludes', joke_id)
 
     @classmethod
     def get_jokes(cls, session_id: str, count: int = 5) -> list:
@@ -69,9 +76,7 @@ class Silo:
             Raises:
                 KeyError
         """
-        obj = cls.__silo.get(session_id)
-
-        jokes = obj[0].get('jokes', [])
+        jokes = cls.__silo.get(session_id, 'jokes')
 
         return jokes[:count]
 
