@@ -17,4 +17,4 @@ class User(Document):
     email = StringField(required=True)
     username = StringField(required=True)
     password = StringField(required=True)
-    meta = {"db_alias": alias}
+    meta = {"db_alias": alias, "collection": "user"}
