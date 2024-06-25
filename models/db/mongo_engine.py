@@ -27,7 +27,7 @@ class MongoEngine:
 
         Return - None.
         """
-        connect(alias=alias, host=f"mongodb://{MONGO_HOST}:{MONGO_PORT}/{db_name}")
+        connect(alias=alias, host=f"mongodb://{MONGO_HOST}:{MONGO_PORT}/{db_name}", uuidRepresentation='standard')
 
     @staticmethod
     def disconnect(alias: str) -> None:
