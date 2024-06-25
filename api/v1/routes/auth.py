@@ -7,13 +7,13 @@ auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth.errorhandler(400)
 def error_bad_request(e):
-    """Raised when the parmeter passed to the data is incomplete"""
+    """Raised when the parameter passed to the data is incomplete"""
     return jsonify({'error': e.description}), e.code
 
 
 @auth.errorhandler(403)
 def error_forbidden(e):
-    """Raised when the a forbidden action is attempted"""
+    """Raised when a forbidden action is attempted"""
     return jsonify({'error': e.description}), e.code
 
 
@@ -21,6 +21,10 @@ def error_forbidden(e):
 def auth_create_user():
     """Creates a new user."""
     data: dict = request.get_json()
+
+    for k in data.keys():
+        if k not in ['username', 'password', 'email']:
+            return abort(400, f'unprocessable entity \'{k}\'')
 
     uname = data.get('username')
     pswrd = data.get('password')
@@ -33,6 +37,7 @@ def auth_create_user():
     if not email:
         return abort(400, 'email not found')
 
+    
     # TODO: Check if user already exist
     user = None
 
