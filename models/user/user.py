@@ -14,7 +14,7 @@ class User(Document):
     contain the information
     of each User document stored on the mongoengine"""
 
-    email = StringField(required=True)
-    username = StringField(required=True)
+    email = StringField(required=True, unique=True)
+    username = StringField(required=True, unique=True)
     password = StringField(required=True)
     meta = {"db_alias": alias, "collection": "user"}

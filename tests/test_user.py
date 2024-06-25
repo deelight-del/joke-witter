@@ -3,7 +3,12 @@
 
 import unittest
 from models.user.user import User
-from mongoengine import OperationError, ConnectionFailure, ValidationError
+from mongoengine import (
+    OperationError,
+    ConnectionFailure,
+    ValidationError,
+    NotUniqueError,
+)
 from bson.objectid import ObjectId
 
 
@@ -117,6 +122,36 @@ class TestUser(unittest.TestCase):
         )
         with self.assertRaises(ValidationError):
             john.save()
+
+    def test_unique_fields(self) -> None:
+        """Test for email and username field to ensure uniqueness"""
+        john = User(
+            username=self.john_username,
+            password=self.john_password,
+            email=self.john_email,
+        )
+        john.save()
+        duplicate_john_uname = User(
+            username=self.john_username,
+            password=self.mary_password,
+            email=self.mary_email,
+        )
+        with self.assertRaises(NotUniqueError):
+            duplicate_john_uname.save()
+
+        mary = User(
+            username=self.mary_username,
+            password=self.mary_password,
+            email=self.mary_email,
+        )
+        mary.save()
+        duplicate_mary_email = User(
+            username="new_mary",
+            password=self.mary_password,
+            email=self.mary_email,
+        )
+        with self.assertRaises(NotUniqueError):
+            duplicate_mary_email.save()
 
 
 # TODO : Fix issue when mongod is not starting.
