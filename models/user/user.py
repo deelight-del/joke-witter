@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Using Mongo Engine to define a user Object."""
 
-from mongoengine import Document, StringField, EmailField
+from mongoengine import Document, IntField, ListField, StringField, EmailField
 from models.db.mongo_engine import MongoEngine
 import os
 
@@ -17,4 +17,7 @@ class User(Document):
     email = EmailField(required=True, unique=True)
     username = StringField(required=True, unique=True)
     password = StringField(required=True)
+    include_ids = ListField(IntField)
+    exclude_ids = ListField(IntField)
+    # TODO: Test both include_ids & exclude_ids field.
     meta = {"db_alias": alias, "collection": "user"}
