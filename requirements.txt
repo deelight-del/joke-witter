@@ -1,1 +1,14 @@
-redis[hiredis]
+blinker==1.8.2
+click==8.1.7
+dnspython==2.6.1
+email_validator==2.2.0
+Flask==3.0.3
+hiredis==2.3.2
+idna==3.7
+itsdangerous==2.2.0
+Jinja2==3.1.4
+MarkupSafe==2.1.5
+mongoengine==0.28.2
+pymongo==4.7.3
+redis==5.0.6
+Werkzeug==3.0.3
