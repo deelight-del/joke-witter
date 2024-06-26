@@ -4,6 +4,7 @@ from mongoengine.errors import ValidationError
 from email_validator import validate_email, EmailNotValidError
 
 from models.user.user import User
+from api.v1.routes.login import *
 
 
 auth = Blueprint('auth', __name__, url_prefix='/auth')

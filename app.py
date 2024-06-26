@@ -1,4 +1,5 @@
-"""Flask App"""
+"""Flask App."""
+
 
 from flask import Flask
 
