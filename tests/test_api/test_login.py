@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Module for testing the login behaviour."""
 
-from datetime import datetime, timedelta
 import unittest
 import os
 
