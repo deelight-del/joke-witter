@@ -1,6 +1,9 @@
 blinker==1.8.2
+cffi==1.16.0
 click==8.1.7
+cryptography==42.0.8
 dnspython==2.6.1
+ecdsa==0.19.0
 email_validator==2.2.0
 Flask==3.0.3
 hiredis==2.3.2
@@ -9,6 +12,11 @@ itsdangerous==2.2.0
 Jinja2==3.1.4
 MarkupSafe==2.1.5
 mongoengine==0.28.2
+pyasn1==0.6.0
+pycparser==2.22
 pymongo==4.7.3
+python-jose==3.3.0
 redis==5.0.6
+rsa==4.9
+six==1.16.0
 Werkzeug==3.0.3

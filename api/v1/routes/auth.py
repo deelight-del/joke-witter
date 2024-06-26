@@ -1,13 +1,33 @@
 """Contains routes pertaining to authenticating a user"""
-from flask import Blueprint, abort, jsonify, request
-from mongoengine.errors import ValidationError
+
+import os
+from datetime import datetime, timedelta, timezone
+
+from flask import Blueprint, abort, jsonify, request, make_response
+from mongoengine.errors import NotUniqueError
 from email_validator import validate_email, EmailNotValidError
+from werkzeug.security import check_password_hash, generate_password_hash
+from jose import jwt
 
 from models.user.user import User
-from api.v1.routes.login import *
 
 
 auth = Blueprint('auth', __name__, url_prefix='/auth')
+
+SECRET_KEY: str | None = os.getenv("SECRET_KEY")
+now: datetime = datetime.now(timezone.utc)
+expdelta: timedelta = timedelta(hours=24)
+exp: datetime = now + expdelta
+json_payload: dict = {"exp": exp, "iat": now, "nbf": now}
+
+if not SECRET_KEY:
+    raise TypeError("SECRET KEY is not set in the environment!")
+
+
+@auth.errorhandler(401)
+def error_unauthenticated(e):
+    """Error handler for error 401"""
+    return jsonify({"error": e.description}), e.code
 
 
 @auth.errorhandler(400)
@@ -29,30 +49,63 @@ def auth_create_user():
 
     for k in data.keys():
         if k not in ['username', 'password', 'email']:
-            return abort(400, f"unprocessable entity '{k}'")
+            abort(400, f"unprocessable entity '{k}'")
 
     uname = data.get('username')
     pswrd = data.get('password')
     email = data.get('email')
 
     if not uname:
-        return abort(400, 'username not found')
+        abort(400, 'username not found')
     if not pswrd:
-        return abort(400, 'password not found')
+        abort(400, 'password not found')
     if not email:
-        return abort(400, 'email not found')
+        abort(400, 'email not found')
 
     try:
         valid_mail = validate_email(email)
     except EmailNotValidError:
-        return abort(400, f"email address '{email}' is not valid")
+        abort(400, f"email address '{email}' is not valid")
 
-    new_user = User(email=valid_mail.normalized, password=pswrd, username=uname)
+    new_user = User(email=valid_mail.normalized,
+                    password=generate_password_hash(pswrd), username=uname)
 
     try:
         new_user.save()
-    except ValidationError as e:
-        # return abort(403, 'user with email \'{email}\' already exist')
-        return abort(403, e.message)
+    except NotUniqueError as e:
+        if 'email' in str(e):
+            abort(403, f'user with email \'{email}\' already exist')
+        elif 'username' in str(e):
+            abort(403, f'user with username \'{uname}\' already exist')
 
     return jsonify({'username': uname, 'email': email}), 201
+
+
+@auth.post("/login", strict_slashes=False)
+def login():
+    """Method for login endpoint"""
+    email_or_username = request.form["email_or_username"]
+    password = request.form["password"]
+
+    if not email_or_username or not password:
+        abort(400, description="Fill both username and password field")
+    if "@" in str(email_or_username):
+        user = User.objects(email=email_or_username).first()
+        if user is None:
+            abort(401, description="email/username not registered")
+    else:
+        user = User.objects(username=email_or_username).first()
+        if user is None:
+            abort(401, description="email/username not registered")
+
+    # Now authenticate with password.
+    pwhash = user.password
+    if not check_password_hash(pwhash, password):
+        abort(401, description="email/username or password is incorrect")
+    jwt_payload = jwt.encode(json_payload, str(SECRET_KEY), algorithm="HS256")
+
+    response = make_response(
+        {"email": user.email, "username": user.username}, 201)
+    response.headers["Authorization"] = jwt_payload
+
+    return response

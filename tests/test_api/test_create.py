@@ -1,9 +1,8 @@
-"""Test  For Authentication routes."""
+"""Test  For Creating user route"""
 
 import unittest
 
 from app import app
-from api.v1.routes.auth import auth_create_user
 from models.db.mongo_engine import MongoEngine
 
 
@@ -37,6 +36,7 @@ class TestAuthRoute(unittest.TestCase):
             }
         )
         res = self.client.post('/auth/create', json=self.valid_user_data)
+        self.assertEqual(res.status_code, 403)
 
     def test_incorrect_content_type_sent(self):
         """Test if incorrect Content-Type returns correct error."""
@@ -57,6 +57,3 @@ class TestAuthRoute(unittest.TestCase):
             res.json,
             {'error': 'unprocessable entity \'school\''}
         )
-
-    def test_creating_an_already_existing_user(self):
-        """Test if creating an existing user returns right error."""
