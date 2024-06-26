@@ -154,4 +154,5 @@ class TestUser(unittest.TestCase):
             duplicate_mary_email.save()
 
 
+# TODO : Test email field.
 # TODO : Fix issue when mongod is not starting.
