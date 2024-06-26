@@ -4,12 +4,14 @@ import unittest
 
 from app import app
 from api.v1.routes.auth import auth_create_user
+from models.db.mongo_engine import MongoEngine
 
 
 class TestAuthRoute(unittest.TestCase):
     """Auth Route testcase."""
 
-    valid_user_data = {'username': 'auser', 'email': 'mail@mail.com', 'password': 'passwrd'}
+    valid_user_data = {'username': 'auser',
+                       'email': 'mail@mail.com', 'password': 'passwrd'}
     incomplete_user_data = {'username': 'auser', 'email': 'mail@mail.com'}
     invalid_user_data = {'school': 'futa', 'email': 'mail@mail.com'}
 
@@ -17,9 +19,11 @@ class TestAuthRoute(unittest.TestCase):
         self.ctx = app.app_context()
         self.ctx.push()
         self.client = app.test_client()
+        MongoEngine.connect("test", "ATotallyNewDB")
 
     def tearDown(self):
         self.ctx.pop()
+        MongoEngine.disconnect('test')
 
     def test_user_create(self):
         """Test if a user is created successfully."""
@@ -32,6 +36,7 @@ class TestAuthRoute(unittest.TestCase):
                 'email': self.valid_user_data['email']
             }
         )
+        res = self.client.post('/auth/create', json=self.valid_user_data)
 
     def test_incorrect_content_type_sent(self):
         """Test if incorrect Content-Type returns correct error."""
