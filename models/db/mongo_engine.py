@@ -6,7 +6,7 @@ import os
 
 MONGO_HOST: str = os.getenv("MONGO_HOST", "localhost")
 MONGO_PORT: str = os.getenv("MONGO_PORT", "27017")
-DB_NAME: str = os.getenv("DB", "test")
+DB_NAME: str = os.getenv("DB", "testdb")
 
 
 class MongoEngine:
@@ -27,7 +27,7 @@ class MongoEngine:
 
         Return - None.
         """
-        connect(alias=alias, host=f"mongodb://{MONGO_HOST}:{MONGO_PORT}/{db_name}")
+        connect(alias=alias, host=f"mongodb://{MONGO_HOST}:{MONGO_PORT}/{db_name}", uuidRepresentation='standard')
 
     @staticmethod
     def disconnect(alias: str) -> None:
