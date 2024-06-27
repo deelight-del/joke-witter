@@ -9,7 +9,7 @@ from models import REDIS
 class TestSilo(unittest.TestCase):
     """Silo test case"""
 
-    ID = 'arandomid'
+    ID = "arandomid"
 
     def setUp(self) -> None:
         Silo.create_silo(self.ID)
@@ -24,26 +24,28 @@ class TestSilo(unittest.TestCase):
     def test_new_silo_created(self):
         """Test to see if a new silo was successfully created."""
 
-        item = REDIS.get(self.ID, 'jokes')
+        item = REDIS.get(self.ID, "jokes")
         _item = Silo.get_jokes(self.ID, 5)
 
-        self.assertTrue(len(_item) != 5)  # FIX: This should be changed to == once db is implemented
+        self.assertTrue(
+            len(_item) != 5
+        )  # FIX: This should be changed to == once db is implemented
         self.assertLessEqual(len(_item), 5)
         self.assertListEqual(item, _item)
 
     def test_joke_id_included(self):
         """Test including a new id exists"""
-        Silo.include_joke(self.ID, '0')
+        Silo.include_joke(self.ID, "0")
 
-        self.assertTrue(REDIS.exist(self.ID, 'includes', '0'))
-        self.assertFalse(REDIS.exist(self.ID, 'exclude', '0'))
+        self.assertTrue(REDIS.exist(self.ID, "includes", "0"))
+        self.assertFalse(REDIS.exist(self.ID, "exclude", "0"))
 
     def test_joke_id_excluded(self):
         """Test excluding a new id exists"""
-        Silo.exclude_joke(self.ID, '0')
+        Silo.exclude_joke(self.ID, "0")
 
-        self.assertTrue(REDIS.exist(self.ID, 'excludes', '0'))
-        self.assertFalse(REDIS.exist(self.ID, 'includes', '0'))
+        self.assertTrue(REDIS.exist(self.ID, "excludes", "0"))
+        self.assertFalse(REDIS.exist(self.ID, "includes", "0"))
 
     def test_exception_if_id_destroyed(self):
         """Test if geting item after destruction id fails"""
@@ -54,4 +56,4 @@ class TestSilo(unittest.TestCase):
     def test_exception_if_id_not_exist(self):
         """Test if geting item with a non existent id fails"""
         with self.assertRaises(KeyError):
-            Silo.get_jokes('thisiddoesnotexist')
+            Silo.get_jokes("thisiddoesnotexist")

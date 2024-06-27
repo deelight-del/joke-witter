@@ -1,6 +1,11 @@
 """Joke silo for each user."""
 
 from . import REDIS
+from utils.generate_content import (
+    generate_random,
+    generate_dynamic,
+    generate_text_from_id,
+)
 
 
 class Silo:
@@ -78,6 +83,8 @@ class Silo:
             KeyError
         """
         jokes = cls.__silo.get(session_id, "jokes")
+        if count == -1:
+            return jokes
 
         return jokes[:count]
 
@@ -88,4 +95,31 @@ class Silo:
         Args:
             session_id: ID generated for the user's session
         """
+        jokes_in_stream = cls.get_jokes(session_id, -1)
+        excludes = cls.__silo.get(session_id, "excludes")
+        includes = cls.__silo.get(session_id, "includes")
+        print("These are includes", includes, "and excludes", excludes)
+        # Use excludes and includes to repopulate jokes.
+        jokes_left_over = jokes_in_stream[5:]  # Can change 5: to count:
+        amount_left = len(jokes_left_over)
+        amount_needed_to_bulk_up = 20 - amount_left
+
+        # Use the given id to get personalized jokeIds
+        if len(list(includes)) == 0:
+            joke_ids = generate_random(amount_needed_to_bulk_up - 2)
+        else:
+            joke_ids = generate_dynamic(list(includes), amount_needed_to_bulk_up - 2)
+
+        # Exclude the exclude_ids from the jokeIds generated.
+        for id in excludes:
+            joke_ids.remove(id)
+        jokes_left_over.extend(generate_text_from_id(joke_ids))
+        amount_needed_to_bulk_up = 20 - len(jokes_left_over)
+        addendum = generate_text_from_id(generate_random(amount_needed_to_bulk_up))
+        jokes_left_over.extend(addendum)
+
+        cls.__silo.set(
+            session_id,
+            {"jokes": jokes_left_over, "includes": {}, "excludes": {}},
+        )
         # TODO: update silo's jokes with newly generated content.

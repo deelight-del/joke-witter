@@ -8,6 +8,7 @@ from mongoengine.errors import NotUniqueError
 from email_validator import validate_email, EmailNotValidError
 from werkzeug.security import check_password_hash, generate_password_hash
 from jose import jwt
+from uuid import uuid4
 
 from models.user.user import User
 
@@ -105,9 +106,13 @@ def login():
     pwhash = user.password
     if not check_password_hash(pwhash, password):
         abort(401, description="email/username or password is incorrect")
+    json_payload["session_id"] = str(uuid4())
     jwt_payload = jwt.encode(json_payload, str(SECRET_KEY), algorithm="HS256")
 
     response = make_response({"email": user.email, "username": user.username}, 201)
     response.headers["Authorization"] = jwt_payload
 
     return response
+
+
+# TODO: Test the session_id added to the json_payload.

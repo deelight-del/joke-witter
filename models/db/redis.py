@@ -37,6 +37,7 @@ class RedisDB:
         if obj is None:
             raise KeyError(f"Key {key} is not present")
 
+        print(obj)
         return obj
 
     def delete(self, key: str) -> None:
