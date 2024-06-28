@@ -46,7 +46,36 @@ def error_forbidden(e):
 
 @auth.post("/create", strict_slashes=False)
 def auth_create_user():
-    """Creates a new user."""
+    """Create user endpoint
+    ---
+    tags:
+      - Auth
+    parameters:
+      - name: username
+        in: form
+        type: string
+        required: true
+      - name: email
+        in: form
+        type: string
+        required: true
+      - name: password
+        in: form
+        type: string
+        required: true
+    responses:
+      201:
+        description: A json response containing the Username and Email of the created user
+        schema:
+            type: object
+            properties:
+                username:
+                    type: string
+                email:
+                    type: string
+      400:
+        description: Field not found
+    """
     data: dict = request.form
 
     for k in data.keys():
@@ -88,7 +117,34 @@ def auth_create_user():
 
 @auth.post("/login", strict_slashes=False)
 def login():
-    """Method for login endpoint"""
+    """Log into a user endpoint
+    ---
+    tags:
+      - Auth
+    parameters:
+      - name: username or email
+        in: form
+        type: string
+        required: true
+      - name: password
+        in: form
+        type: string
+        required: true
+    responses:
+      200:
+        description: A json response containing the Username and Email of the created user
+        schema:
+            type: object
+            properties:
+                username:
+                    type: string
+                email:
+                    type: string
+      400:
+        description: Missing field
+      401:
+        description: Username or Email address not registered
+    """
     email_or_username = request.form["email_or_username"]
     password = request.form["password"]
 
