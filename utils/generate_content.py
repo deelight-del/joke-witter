@@ -3,6 +3,7 @@
 
 import random
 
+random.seed()
 
 # from fastai.collab import Embedding
 from fastai.tabular.all import (
@@ -71,7 +72,7 @@ def generate_dynamic(include_ids: list, n: int = 5):
     for idx in random.sample(list(include_ids), 2):
         dls_inf = learn_inf.dls
         joke_factors_inf = learn_inf.model.item_factors.weight
-        idx_int = idx  # You can change this id, to get different results.
+        idx_int = int(idx)  # You can change this id, to get different results.
         cls_idx = tensor(dls_inf.classes["jokeId"].o2i[idx_int])
         int_joke_emb = joke_factors_inf[cls_idx, None]
         distances = nn.CosineSimilarity(dim=1)(joke_factors_inf, int_joke_emb)

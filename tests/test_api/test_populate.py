@@ -61,7 +61,7 @@ class TestPopulate(unittest.TestCase):
         self.session_id = json_payload["session_id"]
         Silo.create_silo(self.session_id)
         Silo.include_joke(self.session_id, "2")
-        Silo.include_joke(self.session_id, "9")
+        Silo.include_joke(self.session_id, "20")
 
     def tearDown(self) -> None:
         """tear Down method."""
