@@ -59,7 +59,7 @@ class TestPopulate(unittest.TestCase):
             },
         )
         self.jwt_string = response.headers["Authorization"]
-        json_payload = jwt.decode(self.jwt_string, str(SECRET_KEY))
+        json_payload = jwt.decode(self.jwt_string.split()[-1], str(SECRET_KEY))
         self.session_id = json_payload["session_id"]
         Silo.create_silo(self.session_id)
         Silo.include_joke(self.session_id, "2")
@@ -80,28 +80,25 @@ class TestPopulate(unittest.TestCase):
         """Test the login with the right details."""
         resp = self.client.get(
             "/user/main/populate",
-            headers={"Authorization": f"Bearer {self.jwt_string}"},
+            headers={"Authorization": self.jwt_string},
         )
-        print(resp.json)
         self.assertIsInstance(resp.json, dict)
         resp = self.client.get(
             "/user/main/populate",
-            headers={"Authorization": f"Bearer {self.jwt_string}"},
+            headers={"Authorization": self.jwt_string},
         )
-        print(resp.json)
         self.assertIsInstance(resp.json, dict)
         resp = self.client.get(
             "/user/main/populate",
-            headers={"Authorization": f"Bearer {self.jwt_string}"},
+            headers={"Authorization": self.jwt_string},
         )
-        print(resp.json)
         self.assertIsInstance(resp.json, dict)
 
     def test_like_behaviour(self) -> None:
         """Test liking a joke works"""
         resp = self.client.put(
             f"/user/main/{self.include_random}/like",
-            headers={"Authorization": f"Bearer {self.jwt_string}"},
+            headers={"Authorization": self.jwt_string},
         )
 
         self.assertEqual(resp.status_code, 200)
@@ -113,7 +110,7 @@ class TestPopulate(unittest.TestCase):
         """Test disliking a joke works"""
         resp = self.client.put(
             f"/user/main/{self.exclude_random}/dislike",
-            headers={"Authorization": f"Bearer {self.jwt_string}"},
+            headers={"Authorization": self.jwt_string},
         )
 
         self.assertEqual(resp.status_code, 200)

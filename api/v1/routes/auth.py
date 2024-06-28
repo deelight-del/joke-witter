@@ -133,6 +133,11 @@ def login():
     responses:
       200:
         description: A json response containing the Username and Email of the created user
+        headers:
+            Authorization:
+                schema:
+                    type: string
+                description: "Authorization token. Format: Bearer token"
         schema:
             type: object
             properties:
@@ -170,7 +175,7 @@ def login():
     jwt_payload = jwt.encode(json_payload, str(SECRET_KEY), algorithm="HS256")
 
     response = make_response({"email": user.email, "username": user.username}, 201)
-    response.headers["Authorization"] = jwt_payload
+    response.headers["Authorization"] = f"Bearer {jwt_payload}"
 
     return response
 
