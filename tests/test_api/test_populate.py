@@ -2,6 +2,7 @@
 """Test the endpoint of the populate endpoint"""
 
 import unittest
+import random
 
 from jose import jwt
 from app import app
@@ -12,6 +13,7 @@ from werkzeug.security import generate_password_hash
 import os
 
 from models.silo import Silo
+from models import REDIS
 
 SECRET_KEY: str | None = os.getenv("SECRET_KEY")
 
@@ -62,6 +64,8 @@ class TestPopulate(unittest.TestCase):
         Silo.create_silo(self.session_id)
         Silo.include_joke(self.session_id, "2")
         Silo.include_joke(self.session_id, "20")
+        self.include_random = random.randint(5, 10)
+        self.exclude_random = random.randint(5, 10)
 
     def tearDown(self) -> None:
         """tear Down method."""
@@ -75,17 +79,42 @@ class TestPopulate(unittest.TestCase):
     def test_right_behaviour(self) -> None:
         """Test the login with the right details."""
         resp = self.client.get(
-            "/user/main/populate", headers={"Authorization": f"Bearer {self.jwt_string}"}
+            "/user/main/populate",
+            headers={"Authorization": f"Bearer {self.jwt_string}"},
         )
         print("\n\n1. This is the resp.json\n\n", resp.json)
         self.assertIsInstance(resp.json, dict)
         resp = self.client.get(
-            "/user/main/populate", headers={"Authorization": f"Bearer {self.jwt_string}"}
+            "/user/main/populate",
+            headers={"Authorization": f"Bearer {self.jwt_string}"},
         )
         print("\n\n2. This is the resp.json", resp.json)
         self.assertIsInstance(resp.json, dict)
         resp = self.client.get(
-            "/user/main/populate", headers={"Authorization": f"Bearer {self.jwt_string}"}
+            "/user/main/populate",
+            headers={"Authorization": f"Bearer {self.jwt_string}"},
         )
         print("\n\n3. This is the resp.json", resp.json)
         self.assertIsInstance(resp.json, dict)
+
+    def test_like_behaviour(self) -> None:
+        """Test liking a joke works"""
+        resp = self.client.put(
+            f"/user/main/{self.include_random}/like",
+            headers={"Authorization": f"Bearer {self.jwt_string}"},
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        likes = map(int, REDIS.get(self.session_id, "includes")[0].keys())
+        self.assertIn(self.include_random, likes)
+
+    def test_dislike_behaviour(self) -> None:
+        """Test disliking a joke works"""
+        resp = self.client.put(
+            f"/user/main/{self.exclude_random}/like",
+            headers={"Authorization": f"Bearer {self.jwt_string}"},
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        dislikes = map(int, REDIS.get(self.session_id, "excludes")[0].keys())
+        self.assertIn(self.exclude_random, dislikes)

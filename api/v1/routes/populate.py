@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Module to populate the user frontend.
-And bulk up the silo stream."""
+"""Module to populate the user jokes operations."""
 
 from flask import Blueprint, jsonify, abort, request
 import os
@@ -45,7 +44,9 @@ def middleware():
     if not token:
         abort(401, "Unauthorized")
 
-    if not token.startswith("Bearer "): # Checking if token starts with bearer i.e Bearer <token>
+    if not token.startswith(
+        "Bearer "
+    ):  # Checking if token starts with bearer i.e Bearer <token>
         abort(401, "No Bearer authorization header value found")
 
     try:
@@ -54,7 +55,9 @@ def middleware():
         if not silo_session:
             raise JWTClaimsError
 
-        setattr(request, "session_id", silo_session) # sets the silo session token so it can be accessed from the routes
+        setattr(
+            request, "session_id", silo_session
+        )  # sets the silo session token so it can be accessed from the routes
     except ExpiredSignatureError:
         abort(401, "Token expired")
     except JWTClaimsError:
@@ -62,6 +65,7 @@ def middleware():
     except JWTError as e:
         print(e, token)
         abort(401, "Invalid token")
+
 
 @main.put("/<joke_id>/like", strict_slashes=False)
 def like(joke_id: int):
