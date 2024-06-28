@@ -1,3 +1,9 @@
 .venv
 venv*
 __pycache__
+models/user/__pycache__
+models/db/__pycache__
+models/user/__pycache__
+models/db/__pycache__
+models/user/__pycache__
+tests/__pycache__

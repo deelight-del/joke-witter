@@ -8,11 +8,12 @@ from mongoengine.errors import NotUniqueError
 from email_validator import validate_email, EmailNotValidError
 from werkzeug.security import check_password_hash, generate_password_hash
 from jose import jwt
+from uuid import uuid4
 
 from models.user.user import User
 
 
-auth = Blueprint('auth', __name__, url_prefix='/auth')
+auth = Blueprint("auth", __name__, url_prefix="/auth")
 
 SECRET_KEY: str | None = os.getenv("SECRET_KEY")
 now: datetime = datetime.now(timezone.utc)
@@ -33,52 +34,55 @@ def error_unauthenticated(e):
 @auth.errorhandler(400)
 def error_bad_request(e):
     """Raised when the parameter passed to the data is incomplete"""
-    return jsonify({'error': e.description}), e.code
+    return jsonify({"error": e.description}), e.code
 
 
 @auth.errorhandler(403)
 def error_forbidden(e):
     """Raised when a forbidden action is attempted"""
-    return jsonify({'error': e.description}), e.code
+    return jsonify({"error": e.description}), e.code
 
 
-@auth.post('/create', strict_slashes=False)
+@auth.post("/create", strict_slashes=False)
 def auth_create_user():
     """Creates a new user."""
-    data: dict = request.get_json()
+    data: dict = request.form
 
     for k in data.keys():
-        if k not in ['username', 'password', 'email']:
+        if k not in ["username", "password", "email"]:
             abort(400, f"unprocessable entity '{k}'")
 
-    uname = data.get('username')
-    pswrd = data.get('password')
-    email = data.get('email')
+    uname = data.get("username")
+    pswrd = data.get("password")
+    email = data.get("email")
 
     if not uname:
-        abort(400, 'username not found')
+        abort(400, "username not found")
     if not pswrd:
-        abort(400, 'password not found')
+        abort(400, "password not found")
     if not email:
-        abort(400, 'email not found')
+        abort(400, "email not found")
 
     try:
         valid_mail = validate_email(email)
     except EmailNotValidError:
         abort(400, f"email address '{email}' is not valid")
 
-    new_user = User(email=valid_mail.normalized,
-                    password=generate_password_hash(pswrd), username=uname)
+    new_user = User(
+        email=valid_mail.normalized,
+        password=generate_password_hash(pswrd),
+        username=uname,
+    )
 
     try:
         new_user.save()
     except NotUniqueError as e:
-        if 'email' in str(e):
-            abort(403, f'user with email \'{email}\' already exist')
-        elif 'username' in str(e):
-            abort(403, f'user with username \'{uname}\' already exist')
+        if "email" in str(e):
+            abort(403, f"user with email '{email}' already exist")
+        elif "username" in str(e):
+            abort(403, f"user with username '{uname}' already exist")
 
-    return jsonify({'username': uname, 'email': email}), 201
+    return jsonify({"username": uname, "email": email}), 201
 
 
 @auth.post("/login", strict_slashes=False)
@@ -102,10 +106,13 @@ def login():
     pwhash = user.password
     if not check_password_hash(pwhash, password):
         abort(401, description="email/username or password is incorrect")
+    json_payload["session_id"] = str(uuid4())
     jwt_payload = jwt.encode(json_payload, str(SECRET_KEY), algorithm="HS256")
 
-    response = make_response(
-        {"email": user.email, "username": user.username}, 201)
+    response = make_response({"email": user.email, "username": user.username}, 201)
     response.headers["Authorization"] = jwt_payload
 
     return response
+
+
+# TODO: Test the session_id added to the json_payload.
