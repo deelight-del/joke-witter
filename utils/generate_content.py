@@ -53,10 +53,11 @@ def generate_random(n: int = 10) -> list:
 
 def generate_dynamic(include_ids: list, n: int = 5):
     """Generate dynamic specifc contents"""
+    print("include ids passed to generate_dynamic", include_ids)
     if len(include_ids) == 1:
         dls_inf = learn_inf.dls
         joke_factors_inf = learn_inf.model.item_factors.weight
-        idx_int = list(
+        idx_int = int(
             include_ids[0]
         )  # You can change this id, to get different results.
         cls_idx = tensor(dls_inf.classes["jokeId"].o2i[idx_int])

@@ -46,5 +46,7 @@ def populate():
 
     session_id = json_token["session_id"]
     content = Silo.get_jokes(session_id)
-    Silo.repopulate_jokes(session_id)  # Can this come after sending stream to user.
+    Silo.repopulate_jokes(
+        session_id
+    )  # NOTE: Can this come after we return content to user.
     return jsonify({"content": content})

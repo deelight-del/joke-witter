@@ -47,16 +47,6 @@ class RedisDB:
 
         self.__redis.json().delete(key, "$")
 
-    def append(self, key: str, field: str, *val):
-        """Append a value to an array field in the cache.
-
-        The field must a field present in the json object
-        """
-        if self.__redis is None:
-            raise RedisError("Redis not initialized")
-
-        self.__redis.json().arrappend(key, f"$.{field}", *val)
-
     def remove(self, key: str, field: str, _id: str):
         """Remove an item from an object field.
 
@@ -65,6 +55,39 @@ class RedisDB:
         if self.__redis is None:
             raise RedisError("Redis not initialized")
         self.__redis.json().delete(key, f"$.{field}.{_id}")
+
+    def append(self, key: str, field: str, max_len: int = 5, *val):
+        """Append a value to an array field in the cache.
+        The field must a field present in the json object
+
+        Params:
+            key: the object key in the cache
+            field: the name of the field to append
+            max_len: the maximum amount of items the field can contain.
+            Default is 5.
+            val: variadic values to append. The values must not exceed the
+            maximum length of item allowed.
+        Raises:
+            ValueError: if the values exceed the maximum allowed limit.
+            RedisError: if redis database is not correctly initialized.
+        """
+        if self.__redis is None:
+            raise RedisError("Redis not initialized")
+
+        cur_len = self.__redis.json().arrlen(key, f"$.{field}")[0]
+
+        if not cur_len:
+            cur_len = 0
+
+        if len(val) > max_len:
+            raise ValueError(
+                "length of values to append should not exceed the maximum allowed"
+            )
+
+        if cur_len + len(val) > max_len:
+            self.__redis.json().arrtrim(key, f"$.{field}", 0, max_len - len(val))
+
+        self.__redis.json().arrappend(key, f"$.{field}", *val)
 
     def insert(self, key: str, field: str, _id: str):
         """Insert a value to a object field in the cache.

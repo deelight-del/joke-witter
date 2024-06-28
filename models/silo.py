@@ -5,6 +5,7 @@ from utils.generate_content import (
     generate_random,
     generate_dynamic,
     generate_text_from_id,
+    DotProduct,
 )
 
 
@@ -34,7 +35,7 @@ class Silo:
         """
         # TODO: Include jokes from user's permenent includes to populate silo
         cls.__silo.set(
-            session_id, {"jokes": ["this is a joke"], "includes": {}, "excludes": {}}
+            session_id, {"jokes": "this is a joke", "includes": {}, "excludes": {}}
         )
 
     @classmethod
@@ -57,6 +58,7 @@ class Silo:
         if cls.__silo.exist(session_id, "excludes", joke_id):
             cls.__silo.remove(session_id, "excludes", joke_id)
         cls.__silo.insert(session_id, "includes", joke_id)
+        # cls.__silo.append(session_id, "includes", 140, joke_id)
 
     @classmethod
     def exclude_joke(cls, session_id: str, joke_id: str) -> None:
@@ -69,6 +71,7 @@ class Silo:
         if cls.__silo.exist(session_id, "includes", joke_id):
             cls.__silo.remove(session_id, "includes", joke_id)
         cls.__silo.insert(session_id, "excludes", joke_id)
+        # cls.__silo.append(session_id, "excludes", 140, joke_id)
 
     @classmethod
     def get_jokes(cls, session_id: str, count: int = 5) -> list:
@@ -83,9 +86,14 @@ class Silo:
             KeyError
         """
         jokes = cls.__silo.get(session_id, "jokes")
+        if isinstance(jokes, str):
+            pass
+        elif isinstance(jokes, list):
+            if isinstance(jokes[0], list):
+                jokes = jokes[0]
+        # print("\n\njokes, from get_jokes\n\n", jokes)
         if count == -1:
             return jokes
-
         return jokes[:count]
 
     @classmethod
@@ -105,14 +113,18 @@ class Silo:
         amount_needed_to_bulk_up = 20 - amount_left
 
         # Use the given id to get personalized jokeIds
-        if len(list(includes)) == 0:
+        # if len(list(includes)) == 0:
+        if includes[0] == {}:
             joke_ids = generate_random(amount_needed_to_bulk_up - 2)
         else:
-            joke_ids = generate_dynamic(list(includes), amount_needed_to_bulk_up - 2)
-
+            joke_ids = generate_dynamic(
+                [list(obj.keys())[0] for obj in includes], amount_needed_to_bulk_up - 2
+            )
+        print("The joke_ids genrated are", joke_ids)
         # Exclude the exclude_ids from the jokeIds generated.
-        for id in excludes:
-            joke_ids.remove(id)
+        if excludes[0] != {}:
+            for id in [list(obj.keys())[0] for obj in excludes]:
+                joke_ids.remove(id)
         jokes_left_over.extend(generate_text_from_id(joke_ids))
         amount_needed_to_bulk_up = 20 - len(jokes_left_over)
         addendum = generate_text_from_id(generate_random(amount_needed_to_bulk_up))
