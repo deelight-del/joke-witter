@@ -69,7 +69,7 @@ srsly==2.4.8
 sympy==1.12.1
 thinc==8.2.4
 threadpoolctl==3.5.0
-torch==1.11.0+cpu
+torch==1.13.1
 torchvision==0.12.0+cpu
 tqdm==4.66.4
 triton==2.3.1
