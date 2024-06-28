@@ -5,6 +5,7 @@ And bulk up the silo stream."""
 from flask import Blueprint, jsonify, abort, request
 import os
 from jose import jwt, ExpiredSignatureError, JWTError
+from jose.exceptions import JWTClaimsError
 from models.silo import Silo
 
 main = Blueprint("main", __name__, url_prefix="/user/main")
@@ -33,18 +34,57 @@ def error_forbidden(e):
     return jsonify({"error": e.description}), e.code
 
 
+@main.before_request
+def middleware():
+    """Middleware for handling user authorization
+
+    All endpoints in main will run this before their handlers.
+    """
+    token = request.headers.get("Authorization")
+
+    if not token:
+        abort(401, "Unauthorized")
+
+    if not token.startswith("Bearer "): # Checking if token starts with bearer i.e Bearer <token>
+        abort(401, "No Bearer authorization header value found")
+
+    try:
+        payload = jwt.decode(key=SECRET_KEY, token=token.split()[-1])
+        silo_session = payload.get("session_id")
+        if not silo_session:
+            raise JWTClaimsError
+
+        setattr(request, "session_id", silo_session) # sets the silo session token so it can be accessed from the routes
+    except ExpiredSignatureError:
+        abort(401, "Token expired")
+    except JWTClaimsError:
+        abort(401, "Invalid token claim")
+    except JWTError as e:
+        print(e, token)
+        abort(401, "Invalid token")
+
+@main.put("/<joke_id>/like", strict_slashes=False)
+def like(joke_id: int):
+    """Endpoint to add a joke to the list of jokes a user likes."""
+    session_id = request.session_id
+
+    Silo.include_joke(session_id, joke_id=str(joke_id))
+    return jsonify({"joke_id": joke_id})
+
+
+@main.put("/<joke_id>/dislike", strict_slashes=False)
+def dislike(joke_id: int):
+    """Endpoint to add a joke to the list of jokes a user likes."""
+    session_id = request.session_id
+
+    Silo.exclude_joke(session_id, joke_id=str(joke_id))
+    return jsonify({"joke_id": joke_id})
+
+
 @main.get("/populate", strict_slashes=False)
 def populate():
     """Method to populate users frontend."""
-    jwt_token = request.headers["Authorization"]
-    if not jwt_token:
-        abort(401, {"error": "Unauthorized Token"})
-    try:
-        json_token = jwt.decode(jwt_token, key=str(SECRET_KEY))
-    except (ExpiredSignatureError, JWTError) as e:
-        abort(401, {"error": str(e)})
-
-    session_id = json_token["session_id"]
+    session_id = request.session_id
     content = Silo.get_jokes(session_id)
     Silo.repopulate_jokes(
         session_id

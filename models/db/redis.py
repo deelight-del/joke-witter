@@ -131,6 +131,8 @@ class RedisDB:
         if self.__redis is None:
             raise RedisError("Redis not initialized")
 
+        self.get(key, field)
+
         self.__redis.json().set(key, f"$.{field}", {_id: 1})
 
     def exist(self, key: str, field: str, _id: str) -> bool:

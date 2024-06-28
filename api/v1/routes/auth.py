@@ -46,7 +46,7 @@ def error_forbidden(e):
 @auth.post("/create", strict_slashes=False)
 def auth_create_user():
     """Creates a new user."""
-    data: dict = request.get_json()
+    data: dict = request.form
 
     for k in data.keys():
         if k not in ["username", "password", "email"]:

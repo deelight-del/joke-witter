@@ -28,10 +28,10 @@ class TestSilo(unittest.TestCase):
         _item = Silo.get_jokes(self.ID, 5)
 
         self.assertTrue(
-            len(_item) != 5
-        )  # FIX: This should be changed to == once db is implemented
+            len(_item) == len(item[0])
+        )
         self.assertLessEqual(len(_item), 5)
-        self.assertListEqual(item, _item)
+        self.assertListEqual(item[0], _item)
 
     def test_joke_id_included(self):
         """Test including a new id exists"""

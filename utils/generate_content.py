@@ -29,7 +29,6 @@ class DotProduct(Module):
         self.item_factors = Embedding(n_items, n_factors)
         self.item_bias = Embedding(n_items, 1)
         self.y_range = y_range
-        pass
 
     def forward(self, x):
         """Define the forward propagation."""

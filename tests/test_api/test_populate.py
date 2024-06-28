@@ -75,17 +75,17 @@ class TestPopulate(unittest.TestCase):
     def test_right_behaviour(self) -> None:
         """Test the login with the right details."""
         resp = self.client.get(
-            "/user/main/populate", headers={"Authorization": self.jwt_string}
+            "/user/main/populate", headers={"Authorization": f"Bearer {self.jwt_string}"}
         )
         print("\n\n1. This is the resp.json\n\n", resp.json)
         self.assertIsInstance(resp.json, dict)
         resp = self.client.get(
-            "/user/main/populate", headers={"Authorization": self.jwt_string}
+            "/user/main/populate", headers={"Authorization": f"Bearer {self.jwt_string}"}
         )
         print("\n\n2. This is the resp.json", resp.json)
         self.assertIsInstance(resp.json, dict)
         resp = self.client.get(
-            "/user/main/populate", headers={"Authorization": self.jwt_string}
+            "/user/main/populate", headers={"Authorization": f"Bearer {self.jwt_string}"}
         )
         print("\n\n3. This is the resp.json", resp.json)
         self.assertIsInstance(resp.json, dict)
