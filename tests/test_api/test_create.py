@@ -9,10 +9,13 @@ from models.db.mongo_engine import MongoEngine
 class TestAuthRoute(unittest.TestCase):
     """Auth Route testcase."""
 
-    valid_user_data = {'username': 'auser',
-                       'email': 'mail@mail.com', 'password': 'passwrd'}
-    incomplete_user_data = {'username': 'auser', 'email': 'mail@mail.com'}
-    invalid_user_data = {'school': 'futa', 'email': 'mail@mail.com'}
+    valid_user_data = {
+        "username": "auser",
+        "email": "mail@mail.com",
+        "password": "passwrd",
+    }
+    incomplete_user_data = {"username": "auser", "email": "mail@mail.com"}
+    invalid_user_data = {"school": "futa", "email": "mail@mail.com"}
 
     def setUp(self):
         self.ctx = app.app_context()
@@ -22,7 +25,7 @@ class TestAuthRoute(unittest.TestCase):
 
     def tearDown(self):
         self.ctx.pop()
-        MongoEngine.disconnect('test')
+        MongoEngine.disconnect("test")
 
     def test_user_create(self):
         """Test if a user is created successfully."""
@@ -31,9 +34,9 @@ class TestAuthRoute(unittest.TestCase):
         self.assertDictEqual(
             res.json,
             {
-                'username': self.valid_user_data['username'],
-                'email': self.valid_user_data['email']
-            }
+                "username": self.valid_user_data["username"],
+                "email": self.valid_user_data["email"],
+            },
         )
         res = self.client.post('/auth/create', data=self.valid_user_data)
         self.assertEqual(res.status_code, 403)
