@@ -10,6 +10,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from jose import jwt
 from uuid import uuid4
 
+from models.silo import Silo
 from models.user.user import User
 
 
@@ -106,7 +107,10 @@ def login():
     pwhash = user.password
     if not check_password_hash(pwhash, password):
         abort(401, description="email/username or password is incorrect")
-    json_payload["session_id"] = str(uuid4())
+    session_id = str(uuid4())
+    json_payload["session_id"] = session_id
+
+    Silo.create_silo(session_id)
     jwt_payload = jwt.encode(json_payload, str(SECRET_KEY), algorithm="HS256")
 
     response = make_response({"email": user.email, "username": user.username}, 201)

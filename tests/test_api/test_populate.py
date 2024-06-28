@@ -76,25 +76,25 @@ class TestPopulate(unittest.TestCase):
             pass
         Silo.destroy_silo(self.session_id)
 
-    def test_right_behaviour(self) -> None:
+    def test_populate_behaviour(self) -> None:
         """Test the login with the right details."""
         resp = self.client.get(
             "/user/main/populate",
             headers={"Authorization": f"Bearer {self.jwt_string}"},
         )
-        print("\n\n1. This is the resp.json\n\n", resp.json)
+        print(resp.json)
         self.assertIsInstance(resp.json, dict)
         resp = self.client.get(
             "/user/main/populate",
             headers={"Authorization": f"Bearer {self.jwt_string}"},
         )
-        print("\n\n2. This is the resp.json", resp.json)
+        print(resp.json)
         self.assertIsInstance(resp.json, dict)
         resp = self.client.get(
             "/user/main/populate",
             headers={"Authorization": f"Bearer {self.jwt_string}"},
         )
-        print("\n\n3. This is the resp.json", resp.json)
+        print(resp.json)
         self.assertIsInstance(resp.json, dict)
 
     def test_like_behaviour(self) -> None:
@@ -105,16 +105,18 @@ class TestPopulate(unittest.TestCase):
         )
 
         self.assertEqual(resp.status_code, 200)
-        likes = map(int, REDIS.get(self.session_id, "includes")[0].keys())
+        likes = list(
+            map(int, REDIS.get(self.session_id, "includes")[0].keys()))
         self.assertIn(self.include_random, likes)
 
     def test_dislike_behaviour(self) -> None:
         """Test disliking a joke works"""
         resp = self.client.put(
-            f"/user/main/{self.exclude_random}/like",
+            f"/user/main/{self.exclude_random}/dislike",
             headers={"Authorization": f"Bearer {self.jwt_string}"},
         )
 
         self.assertEqual(resp.status_code, 200)
-        dislikes = map(int, REDIS.get(self.session_id, "excludes")[0].keys())
+        dislikes = list(
+            map(int, REDIS.get(self.session_id, "excludes")[0].keys()))
         self.assertIn(self.exclude_random, dislikes)

@@ -62,8 +62,7 @@ def middleware():
         abort(401, "Token expired")
     except JWTClaimsError:
         abort(401, "Invalid token claim")
-    except JWTError as e:
-        print(e, token)
+    except JWTError:
         abort(401, "Invalid token")
 
 

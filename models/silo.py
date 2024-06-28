@@ -33,9 +33,10 @@ class Silo:
         Args:
             session_id: ID generated for the user's session
         """
-        # TODO: Include jokes from user's permenent includes to populate silo
+        jokes = generate_text_from_id(generate_random(5))
+
         cls.__silo.set(
-            session_id, {"jokes": ["this is a joke"],
+            session_id, {"jokes": jokes,
                          "includes": {}, "excludes": {}}
         )
 
@@ -90,7 +91,6 @@ class Silo:
         elif isinstance(jokes, list):
             if isinstance(jokes[0], list):
                 jokes = jokes[0]
-        # print("\n\njokes, from get_jokes\n\n", jokes)
         if count == -1:
             return jokes
         return jokes[:count]
@@ -105,7 +105,6 @@ class Silo:
         jokes_in_stream = cls.get_jokes(session_id, -1)
         excludes = cls.__silo.get(session_id, "excludes")
         includes = cls.__silo.get(session_id, "includes")
-        print("These are includes", includes, "and excludes", excludes)
         # Use excludes and includes to repopulate jokes.
         jokes_left_over = jokes_in_stream[5:]  # Can change 5: to count:
         amount_left = len(jokes_left_over)
@@ -119,7 +118,6 @@ class Silo:
             joke_ids = generate_dynamic(
                 [list(obj.keys())[0] for obj in includes], amount_needed_to_bulk_up - 2
             )
-        print("The joke_ids genrated are", joke_ids)
         # Exclude the exclude_ids from the jokeIds generated.
         if excludes[0] != {}:
             for id in [list(obj.keys())[0] for obj in excludes]:
