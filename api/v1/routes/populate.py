@@ -77,7 +77,7 @@ def like(joke_id: int):
     parameters:
       - name: joke_id
         in: path
-        type: int
+        type: integer
         required: true
     responses:
       200:
@@ -86,7 +86,7 @@ def like(joke_id: int):
             type: object
             properties:
                 joke_id:
-                    type: int
+                    type: integer
       401:
         description: Unauthorized
     """
@@ -105,7 +105,7 @@ def dislike(joke_id: int):
     parameters:
       - name: joke_id
         in: path
-        type: int
+        type: integer
         required: true
     security:
       - Bearer: ['Authorization']
@@ -116,7 +116,7 @@ def dislike(joke_id: int):
             type: object
             properties:
                 joke_id:
-                    type: int
+                    type: integer
       401:
         description: Unauthorized
     """

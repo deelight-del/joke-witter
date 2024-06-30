@@ -52,15 +52,15 @@ def auth_create_user():
       - Auth
     parameters:
       - name: username
-        in: form
+        in: formData
         type: string
         required: true
       - name: email
-        in: form
+        in: formData
         type: string
         required: true
       - name: password
-        in: form
+        in: formData
         type: string
         required: true
     responses:
@@ -122,12 +122,12 @@ def login():
     tags:
       - Auth
     parameters:
-      - name: username or email
-        in: form
+      - name: email_or_username
+        in: formData
         type: string
         required: true
       - name: password
-        in: form
+        in: formData
         type: string
         required: true
     responses:
