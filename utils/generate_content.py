@@ -53,7 +53,6 @@ def generate_random(n: int = 10) -> list:
 
 def generate_dynamic(include_ids: list, n: int = 5):
     """Generate dynamic specifc contents"""
-    print("include ids passed to generate_dynamic", include_ids)
     if len(include_ids) == 1:
         dls_inf = learn_inf.dls
         joke_factors_inf = learn_inf.model.item_factors.weight

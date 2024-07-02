@@ -10,6 +10,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from jose import jwt
 from uuid import uuid4
 
+from models.silo import Silo
 from models.user.user import User
 
 
@@ -45,7 +46,36 @@ def error_forbidden(e):
 
 @auth.post("/create", strict_slashes=False)
 def auth_create_user():
-    """Creates a new user."""
+    """Create user endpoint
+    ---
+    tags:
+      - Auth
+    parameters:
+      - name: username
+        in: formData
+        type: string
+        required: true
+      - name: email
+        in: formData
+        type: string
+        required: true
+      - name: password
+        in: formData
+        type: string
+        required: true
+    responses:
+      201:
+        description: A json response containing the Username and Email of the created user
+        schema:
+            type: object
+            properties:
+                username:
+                    type: string
+                email:
+                    type: string
+      400:
+        description: Field not found
+    """
     data: dict = request.form
 
     for k in data.keys():
@@ -87,7 +117,39 @@ def auth_create_user():
 
 @auth.post("/login", strict_slashes=False)
 def login():
-    """Method for login endpoint"""
+    """Log into a user endpoint
+    ---
+    tags:
+      - Auth
+    parameters:
+      - name: email_or_username
+        in: formData
+        type: string
+        required: true
+      - name: password
+        in: formData
+        type: string
+        required: true
+    responses:
+      200:
+        description: A json response containing the Username and Email of the created user
+        headers:
+            Authorization:
+                schema:
+                    type: string
+                description: "Authorization token. Format: Bearer token"
+        schema:
+            type: object
+            properties:
+                username:
+                    type: string
+                email:
+                    type: string
+      400:
+        description: Missing field
+      401:
+        description: Username or Email address not registered
+    """
     email_or_username = request.form["email_or_username"]
     password = request.form["password"]
 
@@ -106,11 +168,14 @@ def login():
     pwhash = user.password
     if not check_password_hash(pwhash, password):
         abort(401, description="email/username or password is incorrect")
-    json_payload["session_id"] = str(uuid4())
+    session_id = str(uuid4())
+    json_payload["session_id"] = session_id
+
+    Silo.create_silo(session_id)
     jwt_payload = jwt.encode(json_payload, str(SECRET_KEY), algorithm="HS256")
 
     response = make_response({"email": user.email, "username": user.username}, 201)
-    response.headers["Authorization"] = jwt_payload
+    response.headers["Authorization"] = f"Bearer {jwt_payload}"
 
     return response
 

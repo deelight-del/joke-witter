@@ -62,14 +62,34 @@ def middleware():
         abort(401, "Token expired")
     except JWTClaimsError:
         abort(401, "Invalid token claim")
-    except JWTError as e:
-        print(e, token)
+    except JWTError:
         abort(401, "Invalid token")
 
 
 @main.put("/<joke_id>/like", strict_slashes=False)
 def like(joke_id: int):
-    """Endpoint to add a joke to the list of jokes a user likes."""
+    """Like joke endpoint
+    ---
+    tags:
+      - Jokes
+    security:
+      - Bearer: ['Authorization']
+    parameters:
+      - name: joke_id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Success response indicating joke liked
+        schema:
+            type: object
+            properties:
+                joke_id:
+                    type: integer
+      401:
+        description: Unauthorized
+    """
     session_id = request.session_id
 
     Silo.include_joke(session_id, joke_id=str(joke_id))
@@ -78,7 +98,28 @@ def like(joke_id: int):
 
 @main.put("/<joke_id>/dislike", strict_slashes=False)
 def dislike(joke_id: int):
-    """Endpoint to add a joke to the list of jokes a user likes."""
+    """Dislike joke endpoint
+    ---
+    tags:
+      - Jokes
+    parameters:
+      - name: joke_id
+        in: path
+        type: integer
+        required: true
+    security:
+      - Bearer: ['Authorization']
+    responses:
+      200:
+        description: Success response indicating joke disliked
+        schema:
+            type: object
+            properties:
+                joke_id:
+                    type: integer
+      401:
+        description: Unauthorized
+    """
     session_id = request.session_id
 
     Silo.exclude_joke(session_id, joke_id=str(joke_id))
@@ -87,7 +128,25 @@ def dislike(joke_id: int):
 
 @main.get("/populate", strict_slashes=False)
 def populate():
-    """Method to populate users frontend."""
+    """Populate a users silo endpoint
+    ---
+    tags:
+      - Jokes
+    security:
+      - Bearer: ['Authorization']
+    responses:
+      200:
+        description: A json response that returns pre-generated content
+        schema:
+            type: object
+            properties:
+                content:
+                    type: array
+                    items:
+                        type: string
+      401:
+        description: Unauthorized
+    """
     session_id = request.session_id
     content = Silo.get_jokes(session_id)
     Silo.repopulate_jokes(

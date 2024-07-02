@@ -151,7 +151,9 @@ class TestLogin(unittest.TestCase):
             response.json, {"email": self.user1_email, "username": self.user1_username}
         )
         self.assertIsNotNone(response.headers["Authorization"])
-        auth_claims = jwt.decode(response.headers["Authorization"], key=str(SECRET_KEY))
+
+        token = response.headers["Authorization"].split()[-1]
+        auth_claims = jwt.decode(token, key=str(SECRET_KEY))
         # The datetime claims are obtained as POSIX integer(epoch) timing.
         self.assertIsInstance(auth_claims["exp"], int)
         self.assertIsInstance(auth_claims["nbf"], int)
