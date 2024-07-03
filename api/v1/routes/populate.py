@@ -7,7 +7,7 @@ from jose import jwt, ExpiredSignatureError, JWTError
 from jose.exceptions import JWTClaimsError
 from models.silo import Silo
 
-main = Blueprint("main", __name__, url_prefix="/user/main")
+main = Blueprint("main", __name__, url_prefix="/api/v1/user/main")
 
 SECRET_KEY: str | None = os.getenv("SECRET_KEY")
 

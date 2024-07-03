@@ -11,12 +11,24 @@ from fastai.tabular.all import (
 app = Flask(__name__)
 swagger = Swagger(
     app,
+    config={
+        "url_prefix": "/api/v1",
+        "headers": [],
+        "title": "JokeWitter",
+        "description": "API for joke recommendation",
+        "version": "1.0",
+        "specs": [
+            {
+                "endpoint": 'apispec_1',
+                "route": '/apispec_1.json',
+                "rule_filter": lambda rule: True,  # all in
+                "model_filter": lambda tag: True,  # all in
+            }
+        ],
+        "termsOfService": "",
+    },
     template={
         "swagger": "2.0",
-        "info": {
-            "title": "JokeWitter",
-            "version": "1.0",
-        },
         "produces": [
             "application/json",
         ],
@@ -30,9 +42,6 @@ swagger = Swagger(
         },
     },
 )
-
-
-app.config["SWAGGER"] = {"title": "JokeWitter", "uiversion": 3}
 
 
 # The class, as defined in the actual module,
@@ -56,12 +65,12 @@ class DotProduct(Module):
         res += self.user_bias(x[:, 0]) + self.item_bias(x[:, 1])
         return sigmoid_range(res, *self.y_range)
 
-from api.v1.routes.populate import main
+
 from api.v1.routes.auth import auth
+from api.v1.routes.populate import main
 
-app.register_blueprint(auth)
-app.register_blueprint(main)
-
+app.register_blueprint(auth,)
+app.register_blueprint(main,)
 if __name__ == "__main__":
     # TODO: Env variable to turn debug on and off
     app.run("0.0.0.0", 5000, debug=True)

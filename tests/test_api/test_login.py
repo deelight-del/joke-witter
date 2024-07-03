@@ -58,7 +58,7 @@ class TestLogin(unittest.TestCase):
     def test_right_login(self) -> None:
         """Test the login with the right details."""
         response = self.client.post(
-            "/auth/login",
+            "/api/v1/auth/login",
             data={
                 "email_or_username": self.user1_email,
                 "password": self.user1_password,
@@ -71,7 +71,7 @@ class TestLogin(unittest.TestCase):
 
         # Test with username.
         response = self.client.post(
-            "/auth/login",
+            "/api/v1/auth/login",
             data={
                 "email_or_username": self.user2_username,
                 "password": self.user2_password,
@@ -85,7 +85,7 @@ class TestLogin(unittest.TestCase):
     def test_unexisting_details(self):
         """Test when the user email and username don't exist"""
         response = self.client.post(
-            "/auth/login",
+            "/api/v1/auth/login",
             data={
                 "email_or_username": "Unexisting-Username",
                 "password": self.user1_password,
@@ -94,7 +94,7 @@ class TestLogin(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.json, {"error": "email/username not registered"})
         response = self.client.post(
-            "/auth/login",
+            "/api/v1/auth/login",
             data={
                 "email_or_username": "Unexisting@mail.com",
                 "password": self.user1_password,
@@ -106,7 +106,7 @@ class TestLogin(unittest.TestCase):
     def test_wrong_password(self):
         """Test for when the password is wrong."""
         response = self.client.post(
-            "/auth/login",
+            "/api/v1/auth/login",
             data={
                 "email_or_username": self.user1_email,
                 "password": self.user2_password,
@@ -120,7 +120,7 @@ class TestLogin(unittest.TestCase):
     def test_missing_fields(self):
         """Test what happens when fields are missing"""
         response = self.client.post(
-            "/auth/login",
+            "/api/v1/auth/login",
             data={"password": self.user1_password},
         )
         self.assertEqual(response.status_code, 400)
@@ -128,7 +128,7 @@ class TestLogin(unittest.TestCase):
         #    response.json, {"error": "Fill both username and password field"}
         # )
         response = self.client.post(
-            "/auth/login",
+            "/api/v1/auth/login",
             data={"email_or_username": self.user1_email},
         )
         self.assertEqual(response.status_code, 400)
@@ -140,7 +140,7 @@ class TestLogin(unittest.TestCase):
     def test_header_when_logged_in(self):
         """Check if the authorization header is set."""
         response = self.client.post(
-            "/auth/login",
+            "/api/v1/auth/login",
             data={
                 "email_or_username": self.user1_email,
                 "password": self.user1_password,
@@ -162,7 +162,7 @@ class TestLogin(unittest.TestCase):
     def test_header_when_not_logged_in(self):
         """Check the authorization header is not set at failed login."""
         response = self.client.post(
-            "/auth/login",
+            "/api/v1/auth/login",
             data={
                 "email_or_username": self.user1_username,
                 "password": self.user2_password,
@@ -177,5 +177,5 @@ class TestLogin(unittest.TestCase):
 
     def test_wrong_http_verb(self):
         """What happens when we use the wrong http verb."""
-        response = self.client.get("/auth/login")
+        response = self.client.get("/api/v1/auth/login")
         self.assertEqual(response.status_code, 405)

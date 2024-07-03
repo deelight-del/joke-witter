@@ -29,7 +29,7 @@ class TestAuthRoute(unittest.TestCase):
 
     def test_user_create(self):
         """Test if a user is created successfully."""
-        res = self.client.post('/auth/create', data=self.valid_user_data)
+        res = self.client.post('/api/v1/auth/create', data=self.valid_user_data)
         self.assertEqual(res.status_code, 201)
         self.assertDictEqual(
             res.json,
@@ -38,28 +38,28 @@ class TestAuthRoute(unittest.TestCase):
                 "email": self.valid_user_data["email"],
             },
         )
-        res = self.client.post('/auth/create', data=self.valid_user_data)
+        res = self.client.post('/api/v1/auth/create', data=self.valid_user_data)
         self.assertEqual(res.status_code, 403)
 
     def test_incorrect_content_type_sent(self):
         """Test if incorrect Content-Type returns correct error."""
-        res = self.client.post('/auth/create', json={"some_data": 'astring'})
+        res = self.client.post('/api/v1/auth/create', json={"some_data": 'astring'})
         self.assertEqual(res.status_code, 400)
 
     def test_missing_field_sent(self):
         """Test if a required field is missing return correct error."""
-        res = self.client.post('/auth/create', data=self.incomplete_user_data)
+        res = self.client.post('/api/v1/auth/create', data=self.incomplete_user_data)
         self.assertEqual(res.status_code, 400)
         self.assertDictEqual(res.json, {'error': 'password not found'})
 
     def test_missing_field_sent(self):
         """Test if a required field is missing return correct error."""
-        res = self.client.post("/auth/create", data=self.incomplete_user_data)
+        res = self.client.post("/api/v1/auth/create", data=self.incomplete_user_data)
         self.assertEqual(res.status_code, 400)
         self.assertDictEqual(res.json, {"error": "password not found"})
 
     def test_incorrect_field_sent(self):
         """Test if attaching a different field returns right error."""
-        res = self.client.post("/auth/create", data=self.invalid_user_data)
+        res = self.client.post("/api/v1/auth/create", data=self.invalid_user_data)
         self.assertEqual(res.status_code, 400)
         self.assertDictEqual(res.json, {"error": "unprocessable entity 'school'"})

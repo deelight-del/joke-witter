@@ -52,7 +52,7 @@ class TestPopulate(unittest.TestCase):
             password=self.user2_e_password,
         ).save()
         response = self.client.post(
-            "/auth/login",
+            "/api/v1/auth/login",
             data={
                 "email_or_username": self.user1_email,
                 "password": self.user1_password,
@@ -79,17 +79,17 @@ class TestPopulate(unittest.TestCase):
     def test_populate_behaviour(self) -> None:
         """Test the login with the right details."""
         resp = self.client.get(
-            "/user/main/populate",
+            "/api/v1/user/main/populate",
             headers={"Authorization": self.jwt_string},
         )
         self.assertIsInstance(resp.json, dict)
         resp = self.client.get(
-            "/user/main/populate",
+            "/api/v1/user/main/populate",
             headers={"Authorization": self.jwt_string},
         )
         self.assertIsInstance(resp.json, dict)
         resp = self.client.get(
-            "/user/main/populate",
+            "/api/v1/user/main/populate",
             headers={"Authorization": self.jwt_string},
         )
         self.assertIsInstance(resp.json, dict)
@@ -97,7 +97,7 @@ class TestPopulate(unittest.TestCase):
     def test_like_behaviour(self) -> None:
         """Test liking a joke works"""
         resp = self.client.put(
-            f"/user/main/{self.include_random}/like",
+            f"/api/v1/user/main/{self.include_random}/like",
             headers={"Authorization": self.jwt_string},
         )
 
@@ -109,7 +109,7 @@ class TestPopulate(unittest.TestCase):
     def test_dislike_behaviour(self) -> None:
         """Test disliking a joke works"""
         resp = self.client.put(
-            f"/user/main/{self.exclude_random}/dislike",
+            f"/api/v1/user/main/{self.exclude_random}/dislike",
             headers={"Authorization": self.jwt_string},
         )
 

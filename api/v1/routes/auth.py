@@ -14,7 +14,7 @@ from models.silo import Silo
 from models.user.user import User
 
 
-auth = Blueprint("auth", __name__, url_prefix="/auth")
+auth = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
 SECRET_KEY: str | None = os.getenv("SECRET_KEY")
 now: datetime = datetime.now(timezone.utc)

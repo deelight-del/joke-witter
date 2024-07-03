@@ -121,7 +121,10 @@ class Silo:
         # Exclude the exclude_ids from the jokeIds generated.
         if excludes[0] != {}:
             for id in [list(obj.keys())[0] for obj in excludes]:
-                joke_ids.remove(id)
+                try:
+                    joke_ids.remove(id)
+                except ValueError:
+                    pass
         jokes_left_over.extend(generate_text_from_id(joke_ids))
         amount_needed_to_bulk_up = 20 - len(jokes_left_over)
         addendum = generate_text_from_id(generate_random(amount_needed_to_bulk_up))
@@ -131,4 +134,3 @@ class Silo:
             session_id,
             {"jokes": jokes_left_over, "includes": {}, "excludes": {}},
         )
-        # TODO: update silo's jokes with newly generated content.
